@@ -3,92 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
     <title>Commande Client Sécurisée</title>
-    <style>
-      :root {
-        --bg-dark: #09090b;
-        --bg-card: #121214;
-        --border: #27272a;
-        --accent: #10b981;
-        --text-main: #ffffff;
-        --text-dim: #94a3b8;
-      }
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: var(--bg-dark);
-        color: var(--text-main);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-      }
-      .page-wrapper {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        padding: 2rem;
-        border-radius: 16px;
-        width: 100%;
-        max-width: 500px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      }
-      h2 {
-        margin-top: 0;
-        color: var(--accent);
-        text-align: center;
-      }
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-bottom: 20px;
-      }
-      .full-width {
-        grid-column: span 2;
-      }
-      .input-field {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-      }
-      label {
-        font-size: 0.85rem;
-        color: var(--text-dim);
-      }
-      input,
-      select {
-        background: #18181b;
-        border: 1px solid var(--border);
-        padding: 12px;
-        border-radius: 8px;
-        color: white;
-        outline: none;
-      }
-      input:focus {
-        border-color: var(--accent);
-      }
-      .btn-order {
-        background: var(--accent);
-        color: white;
-        border: none;
-        padding: 14px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        transition: 0.2s;
-      }
-      .btn-order:disabled {
-        background: #27272a;
-        cursor: not-allowed;
-      }
-      .footer-text {
-        text-align: center;
-        font-size: 0.8rem;
-        color: var(--text-dim);
-        margin-top: 15px;
-      }
-    </style>
   </head>
   <body>
     <div class="page-wrapper">
@@ -128,9 +44,9 @@
           <div class="input-field full-width">
             <label>Si plusieurs produits (détails)</label>
             <input
-              type="text"
-              id="produitsMultiples"
-              placeholder="Ex: 2 Andro-T, 1 Detox"
+              className="form-input"
+              type="number"
+              placeholder="Montant Total ($)"
             />
           </div>
           <div class="input-field full-width">
@@ -168,41 +84,5 @@
         <p class="footer-text">🔒 Cryptage SSL 256-bits - Paiement sécurisé</p>
       </form>
     </div>
-
-    <script>
-      const bc = new BroadcastChannel("flux_commandes");
-      const form = document.getElementById("formCommande");
-      const btn = document.getElementById("submitBtn");
-
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        btn.disabled = true;
-        btn.innerText = "Traitement...";
-
-        const selectProd = document.getElementById("produitPrincipal");
-
-        // On prépare l'objet avec TOUTES les données
-        const data = {
-          nom: document.getElementById("nom").value,
-          telephone: document.getElementById("telephone").value,
-          produit: selectProd.options[selectProd.selectedIndex].text,
-          detailsMultiples: document.getElementById("produitsMultiples").value,
-          montant: selectProd.value, // Le prix vient de la value du select
-          quantite: document.getElementById("quantite").value,
-          adresse: `${document.getElementById("adresse").value}, ${
-            document.getElementById("ville").value
-          }`,
-          dateLivraison: document.getElementById("dateLivraison").value,
-        };
-
-        setTimeout(() => {
-          bc.postMessage(data);
-          alert("Commande transmise avec succès au système de gestion");
-          form.reset();
-          btn.disabled = false;
-          btn.innerText = "Confirmer l'achat sécurisé";
-        }, 1000);
-      });
-    </script>
   </body>
 </html>
