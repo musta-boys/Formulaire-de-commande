@@ -1,28 +1,41 @@
 const form = document.getElementById("formCommande");
+const selectProd = document.getElementById("produitPrincipal");
+const inputQty = document.getElementById("quantite");
+const inputMontant = document.getElementById("montantTotal");
 const btn = document.getElementById("submitBtn");
+const formContent = document.getElementById("formContent");
+const successMsg = document.getElementById("successMsg");
 
-// Dès que tu as déployé ton backend, mets l'adresse ici :
-const API_URL = "https://TON-APP-BACKEND.onrender.com/commandes";
+// TON URL RENDER
+const API_URL = "https://my-node-api-8frq.onrender.com/commandes";
 
+// --- CALCUL AUTOMATIQUE DU PRIX (Comme handleProductChange / handleQtyChange) ---
+function calculerTotal() {
+  const prixUnitaire = parseFloat(selectProd.value) || 0;
+  const qte = parseInt(inputQty.value) || 0;
+  const total = prixUnitaire * qte;
+  inputMontant.value = total > 0 ? total : "";
+}
+
+selectProd.addEventListener("change", calculerTotal);
+inputQty.addEventListener("input", calculerTotal);
+
+// --- ENVOI DES DONNÉES (handleSubmit) ---
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  btn.disabled = true;
-  btn.innerText = "Envoi sécurisé...";
 
-  const selectProd = document.getElementById("produitPrincipal");
+  btn.disabled = true;
+  btn.innerText = "Envoi...";
 
   const data = {
-    id: Date.now(),
+    vendeurNom: document.getElementById("vendeurNom").value,
     nom: document.getElementById("nom").value,
     telephone: document.getElementById("telephone").value,
-    produit: selectProd.options[selectProd.selectedIndex].text,
-    montant: selectProd.value,
-    quantite: document.getElementById("quantite").value,
-    adresse: `${document.getElementById("adresse").value}, ${
-      document.getElementById("ville").value
-    }`,
+    produit: selectProd.options[selectProd.selectedIndex].text.split(" - ")[0],
+    montant: inputMontant.value,
+    quantite: inputQty.value,
+    adresse: document.getElementById("adresse").value,
     dateLivraison: document.getElementById("dateLivraison").value,
-    dateCommande: new Date().toLocaleString(),
   };
 
   try {
@@ -33,13 +46,25 @@ form.addEventListener("submit", async (e) => {
     });
 
     if (response.ok) {
-      alert("✅ Commande envoyée à l'entreprise !");
-      form.reset();
+      // Affichage du message de succès (Status === "sent")
+      formContent.style.display = "none";
+      successMsg.style.display = "block";
+
+      // Reset après 3 secondes (Comme ton setTimeout)
+      setTimeout(() => {
+        form.reset();
+        formContent.style.display = "block";
+        successMsg.style.display = "none";
+        btn.disabled = false;
+        btn.innerText = "Envoyer à l'ERP";
+      }, 3000);
+    } else {
+      alert("Erreur lors de l'envoi.");
+      btn.disabled = false;
     }
   } catch (error) {
-    alert("Erreur de connexion au serveur de l'entreprise.");
-  } finally {
+    alert("Serveur injoignable.");
     btn.disabled = false;
-    btn.innerText = "Confirmer l'achat sécurisé";
+    btn.innerText = "Envoyer à l'ERP";
   }
 });
